@@ -1,8 +1,9 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
-import { FlatList, Image, StyleSheet, Text, View } from "react-native";
+import { Alert, FlatList, Image, StyleSheet, Text, View } from "react-native";
 import AppLink from "../../components/appLink/AppLink";
-import { getPasswords } from "../../services/password/passwordService";
+import Button from "../../components/Button";
+import { clearPasswords, getPasswords } from "../../services/password/passwordService";
 
 export default function History({ navigation }) {
   const [senhas, setSenhas] = useState([]);
@@ -21,6 +22,27 @@ export default function History({ navigation }) {
       Senha {index + 1}: {item}
     </Text>
   );
+
+  const handleClearHistory = () => {
+    Alert.alert(
+      "Limpar histórico",
+      "Tem certeza que deseja limpar todo o histórico de senhas?",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel"
+        },
+        {
+          text: "Limpar",
+          onPress: async () => {
+            await clearPasswords();
+            setSenhas([]);
+          },
+          style: "destructive"
+        }
+      ]
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -41,6 +63,9 @@ export default function History({ navigation }) {
       </View>
       
       <View style={styles.areaBotoes}>
+        {senhas.length > 0 && (
+          <Button title="LIMPAR HISTÓRICO" onPress={handleClearHistory} />
+        )}
         <AppLink text="Voltar" route="Home" navigation={navigation} />
       </View>
       <StatusBar style="auto" />
