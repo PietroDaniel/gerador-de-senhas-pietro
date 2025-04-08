@@ -1,4 +1,4 @@
-import { getStorageItem, setStorageItem } from "../../utils/localStorage";
+import { getStorageItem, removeStorageItem, setStorageItem } from "../../utils/localStorage";
 
 export function gerarSenha(tamanho = 8) {
   const caracteres =
@@ -34,5 +34,22 @@ export const getPasswords = async () => {
 };
 
 export const clearPasswords = async () => {
-  await setStorageItem("senhas", JSON.stringify([]));
+  try {
+    // Abordagem dupla para garantir que funcione:
+    // 1. Definir como array vazio
+    await setStorageItem("senhas", JSON.stringify([]));
+    
+    // 2. Tentar remover a chave completamente para maior certeza
+    try {
+      await removeStorageItem("senhas");
+    } catch (e) {
+      // Ignora erro na remoção, pois já definimos como array vazio acima
+      console.log("Aviso: Não foi possível remover a chave, mas o array foi esvaziado");
+    }
+    
+    return true;
+  } catch (error) {
+    console.error("Erro ao limpar histórico de senhas:", error);
+    throw error;
+  }
 }; 

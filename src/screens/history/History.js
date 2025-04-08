@@ -1,19 +1,36 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
-import { Alert, FlatList, Image, StyleSheet, Text, View } from "react-native";
+import { Alert, FlatList, Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import AppLink from "../../components/appLink/AppLink";
 import Button from "../../components/Button";
-import { clearPasswords, getPasswords } from "../../services/password/passwordService";
+import { getPasswords } from "../../services/password/passwordService";
+import { removeStorageItem } from "../../utils/localStorage";
 
 export default function History({ navigation }) {
   const [senhas, setSenhas] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const carregarSenhas = async () => {
+    try {
+      setLoading(true);
+      const historico = await getPasswords();
+      setSenhas(historico || []);
+    } catch (error) {
+      console.error("Erro ao carregar senhas:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const carregarSenhas = async () => {
-      const historico = await getPasswords();
-      setSenhas(historico);
-    };
+    const unsubscribe = navigation.addListener('focus', () => {
+      carregarSenhas();
+    });
 
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
     carregarSenhas();
   }, []);
 
@@ -23,62 +40,81 @@ export default function History({ navigation }) {
     </Text>
   );
 
-  const handleClearHistory = () => {
+  const limparHistorico = () => {
+    if (senhas.length === 0) return;
+    
     Alert.alert(
-      "Limpar histórico",
-      "Tem certeza que deseja limpar todo o histórico de senhas?",
+      "Confirmação", 
+      "Deseja apagar todo o histórico de senhas?", 
       [
-        {
-          text: "Cancelar",
-          style: "cancel"
-        },
+        { text: "Cancelar", style: "cancel" },
         {
           text: "Limpar",
+          style: "destructive",
           onPress: async () => {
-            await clearPasswords();
-            setSenhas([]);
+            try {
+              // Remover diretamente para garantir que funcione
+              await removeStorageItem("senhas");
+              setSenhas([]);
+              Alert.alert("Sucesso", "Histórico limpo com sucesso!");
+            } catch (error) {
+              console.error("Erro ao limpar histórico:", error);
+              Alert.alert("Erro", "Falha ao limpar o histórico.");
+            }
           },
-          style: "destructive"
-        }
+        },
       ]
     );
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.titulo}>HISTÓRICO DE SENHAS</Text>
-      <Image source={require("../../../assets/cadeado.png")} style={styles.imagem} />
-      
-      <View style={styles.areaSenhas}>
-        {senhas.length > 0 ? (
-          <FlatList
-            data={senhas}
-            renderItem={renderItem}
-            keyExtractor={(_, index) => index.toString()}
-            style={styles.lista}
-          />
-        ) : (
-          <Text style={styles.textoSenha}>Nenhuma senha gerada ainda</Text>
-        )}
-      </View>
-      
-      <View style={styles.areaBotoes}>
-        {senhas.length > 0 && (
-          <Button title="LIMPAR HISTÓRICO" onPress={handleClearHistory} />
-        )}
-        <AppLink text="Voltar" route="Home" navigation={navigation} />
+    <ScrollView contentContainerStyle={styles.scrollContainer} style={styles.scrollView}>
+      <View style={styles.container}>
+        <Text style={styles.titulo}>HISTÓRICO DE SENHAS</Text>
+        <Image source={require("../../../assets/cadeado.png")} style={styles.imagem} />
+        
+        <View style={styles.areaSenhas}>
+          {loading ? (
+            <Text style={styles.textoSenha}>Carregando...</Text>
+          ) : senhas.length > 0 ? (
+            <FlatList
+              data={senhas}
+              renderItem={renderItem}
+              keyExtractor={(_, index) => index.toString()}
+              style={styles.lista}
+              nestedScrollEnabled={true}
+              maxHeight={300}
+            />
+          ) : (
+            <Text style={styles.textoSenha}>Nenhuma senha gerada ainda</Text>
+          )}
+        </View>
+        
+        <View style={styles.areaBotoes}>
+          {senhas.length > 0 && (
+            <Button title="LIMPAR HISTÓRICO" onPress={limparHistorico} />
+          )}
+          <AppLink text="Voltar" route="Home" navigation={navigation} />
+        </View>
       </View>
       <StatusBar style="auto" />
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  scrollView: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
     backgroundColor: "#ffffff",
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    alignItems: "center",
+    paddingVertical: 20,
+  },
+  container: {
+    width: "100%",
+    alignItems: "center",
     padding: 20,
   },
   imagem: {
@@ -99,9 +135,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     width: "80%",
     marginBottom: 20,
+    maxHeight: 300,
   },
   lista: {
     width: "100%",
+    maxHeight: 250,
   },
   senhaItem: {
     color: "#FFFFFF",
@@ -118,5 +156,5 @@ const styles = StyleSheet.create({
   },
   areaBotoes: {
     width: "80%",
-  },
+  }
 }); 
