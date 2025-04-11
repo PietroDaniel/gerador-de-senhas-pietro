@@ -35,21 +35,23 @@ export const getPasswords = async () => {
 
 export const clearPasswords = async () => {
   try {
-    // Abordagem dupla para garantir que funcione:
-    // 1. Definir como array vazio
-    await setStorageItem("senhas", JSON.stringify([]));
+    console.log("Iniciando limpeza do histórico de senhas");
     
-    // 2. Tentar remover a chave completamente para maior certeza
-    try {
-      await removeStorageItem("senhas");
-    } catch (e) {
-      // Ignora erro na remoção, pois já definimos como array vazio acima
-      console.log("Aviso: Não foi possível remover a chave, mas o array foi esvaziado");
-    }
+    // Usar uma abordagem direta com AsyncStorage para garantir a limpeza
+    await removeStorageItem("senhas");
+    console.log("Item 'senhas' removido do AsyncStorage");
+    
+    // Para total garantia, também definir como array vazio
+    await setStorageItem("senhas", JSON.stringify([]));
+    console.log("Item 'senhas' definido como array vazio");
+    
+    // Verificar se a limpeza foi efetiva
+    const verificacao = await getStorageItem("senhas");
+    console.log("Verificação após limpeza:", verificacao || "Sem dados (null/undefined)");
     
     return true;
   } catch (error) {
-    console.error("Erro ao limpar histórico de senhas:", error);
+    console.error("Erro crítico ao limpar o histórico de senhas:", error);
     throw error;
   }
 }; 

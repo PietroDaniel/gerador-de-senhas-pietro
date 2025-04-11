@@ -2,10 +2,21 @@ import React from "react";
 import { Pressable, StyleSheet, Text } from "react-native";
 
 export default function Button({ title, onPress }) {
+  const handlePress = () => {
+    console.log(`Botão "${title}" pressionado`);
+    if (typeof onPress === 'function') {
+      onPress();
+    } else {
+      console.warn(`Botão "${title}" pressionado, mas onPress não é uma função válida`);
+    }
+  };
+
   return (
     <Pressable
-      onPress={onPress}
+      onPress={handlePress}
       style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+      accessibilityLabel={title}
+      accessibilityRole="button"
     >
       <Text style={styles.buttonText}>{title}</Text>
     </Pressable>
