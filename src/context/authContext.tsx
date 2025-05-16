@@ -1,12 +1,12 @@
 import * as SecureStore from 'expo-secure-store';
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { signin, SigninResponse, signup } from '../services/auth/authService';
+import { signin, signup } from '../services/auth/authService';
 import api from '../utils/api';
 
 // Interface AuthContextProps
 interface AuthContextProps {
-  onRegister: (name: string, email: string, password: string, confirmPassword: string) => Promise<void>;
-  onLogin: (email: string, password: string) => Promise<SigninResponse>;
+  onRegister: (name: string, email: string, password: string, confirmPassword: string, birthDate: string) => Promise<void>;
+  onLogin: (email: string, password: string) => Promise<any>;
   onLogout: () => Promise<void>;
   authState: AuthenticatedProps;
 }
@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       
       // se o token existir, adicionar no header da api
       if (token) {
-        api.defaults.headers.common["Authorization"] = `${token}`;
+        api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
         
         setAuthState({
           token,
@@ -59,10 +59,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     name: string,
     email: string,
     password: string,
-    confirmPassword: string
+    confirmPassword: string,
+    birthDate: string
   ) => {
     try {
-      await signup({ name, email, password, confirmPassword });
+      await signup({ name, email, password, confirmPassword, birthDate });
     } catch (error) {
       throw error;
     }
@@ -80,7 +81,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       });
       
       // adicionar token no header
-      api.defaults.headers.common["Authorization"] = `${result.token}`;
+      api.defaults.headers.common["Authorization"] = `Bearer ${result.token}`;
       
       // adicionar token no localStorage
       await SecureStore.setItemAsync(TOKEN_KEY, result.token);
