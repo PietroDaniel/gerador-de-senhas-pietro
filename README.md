@@ -1,6 +1,6 @@
 # Gerador de Senhas:
 - Cria senhas aleatórias e seguras
-- Permite copiar a senha rapidamente
+- Permite copiar senhas rapidamente
 
 ## Para rodar o app:
 1.  Ter o Node.js instalado.
