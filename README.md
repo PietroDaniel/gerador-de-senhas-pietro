@@ -1,41 +1,19 @@
-# Gerador de Senhas
+# Gerador de Senhas:
+- Cria senhas aleatórias e seguras
+- Permite copiar a senha rapidamente
 
-Um aplicativo simples para gerar senhas aleatórias.
-
-## Funcionalidades
-
-- Gerar senhas aleatórias seguras
-- Copiar senhas para a área de transferência
-- Interface amigável e intuitiva
-
-## Como executar
-
-1. Certifique-se de ter o Node.js instalado
-2. Clone este repositório
-3. Instale as dependências:
+## Pra rodar o app:
+1.  Ter o Node.js instalado.
+2.  Rodar:
 
 ```bash
 npm install
 ```
-
-4. Inicie o aplicativo:
-
+Depois:
 ```bash
 npm start
 ```
-
-5. Use um dispositivo físico ou um emulador para ver o aplicativo em funcionamento
-
-## Tecnologias utilizadas
-
+Feito com:
 - React Native
 - Expo
 - JavaScript
-
-## Autor
-
-Pietro
-
-## Licença
-
-Este projeto está licenciado sob a licença BSD Zero Clause. 

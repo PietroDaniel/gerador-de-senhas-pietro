@@ -1,5 +1,9 @@
 import React from "react";
-import { Pressable, StyleSheet, Text } from "react-native";
+import {
+    Pressable,
+    StyleSheet,
+    Text,
+} from "react-native";
 
 export default function Button({ title, onPress }) {
   const handlePress = () => {
@@ -27,7 +31,7 @@ const styles = StyleSheet.create({
   button: {
     padding: 15,
     borderRadius: 8,
-    width: "100%",
+    width: "80%",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 10,

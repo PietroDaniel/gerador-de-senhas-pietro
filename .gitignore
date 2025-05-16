@@ -68,3 +68,9 @@ project.xcworkspace
 
 # Tests
 coverage/
+
+# Log files
+*.log
+
+# VS Code
+.vscode/
